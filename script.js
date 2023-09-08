@@ -1,45 +1,60 @@
-var x = 50;
-var y = 50;
+var aantalRijenRaster = 6;   // de stappen zijn iedere keer 1 hokje
+var aantalKolommenRaster = 9;
+var celGrootte;
+
+var spriteJos;
+var xJos = 400;
+var yJos = 300;
+
+function preload() {
+  brug = loadImage("images/backgrounds/dame_op_brug_1800.jpg");
+  spriteJos = loadImage("images/sprites/Jos100px/Jos_0.png");
+}
 
 function setup() {
-  canvas = createCanvas(1000,400);
-  textFont("Verdana");
-  textSize(14);
-  noStroke();
-  frameRate(50);
+  canvas = createCanvas(900,600);
+  frameRate(10);
+  celGrootte = width / aantalKolommenRaster;
 }
 
 function draw() {
-  background('olive');
-  
+  background(brug);
+  tekenRaster();
+
   if (keyIsDown(LEFT_ARROW)) {
-    x -= 5;
+    xJos -= celGrootte;
   }
   if (keyIsDown(RIGHT_ARROW)) {
-    x += 5;
+    xJos += celGrootte;
   }
   if (keyIsDown(UP_ARROW)) {
-    y -= 5;
+    yJos -= celGrootte;
   }
   if (keyIsDown(DOWN_ARROW)) {
-    y += 5;
-  }
-  x = constrain(x,0,width - 100);
-  y = constrain(y,0,height - 100); //zorgt ervoor dat je niet uit het canvas kan
-
-
-  
-
-  if (x >= 700 && x <= 875 && y >= 75 && y <= 225) { // omdat het blokje zich dan op dezelfde y positie bevind
-    fill('chartreuse');
-  }
-  else {
-    fill('darkkhaki');
+    yJos += celGrootte;
   }
   
   
-  rect(800,175,75,50);
+  xJos = constrain(xJos,0,width - celGrootte); // zodat jos precies in de hokjes blijft
+  yJos = constrain(yJos,0,height - celGrootte)
   
-  fill('moccasin');
-  rect(x,y,100,100);   
+  image(spriteJos,xJos,yJos);
 }
+
+function tekenRaster() {
+  push();
+  noFill();
+  stroke('grey');
+  for (var rij = 0;rij < aantalRijenRaster;rij++) {
+    for (var kolom = 0;kolom < aantalKolommenRaster;kolom++) {
+      rect(kolom*celGrootte,rij*celGrootte,celGrootte,celGrootte);
+    }
+  }
+  pop();
+}
+
+if (xJos == 6*celGrootte && yJos == 4*celGrootte) {
+   spriteJos.resize(50,50); // absoluluut niks
+}
+
+ spriteJos.filter(ERODE);
