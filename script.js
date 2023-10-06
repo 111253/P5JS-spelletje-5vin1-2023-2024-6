@@ -2,12 +2,15 @@ let canvas;
 let brug;
 let raster;
 let eve;
-let enemies = [];
+let alice;
+let bob;
 let powerUp;
 let invincibilityPowerUp;
 let powerUpMessage = "";
 let lastPowerUpTime = 0;
 let powerUpInterval = 10000; // 10 seconds
+let messageTimer = 0; // Timer for displaying power-up message
+const messageDuration = 5000; // 5 seconds
 
 class Raster {
   constructor(r, k) {
@@ -123,18 +126,15 @@ class Vijand {
 
 class PowerUp {
   constructor() {
-    this.spawnRandomPosition();
-    this.active = true;
-    this.radius = 30;
-    this.color = color(255, 255, 0);
-    this.collected = false;
-  }
-
-  spawnRandomPosition() {
     const gridX = floor(random(raster.aantalKolommen));
     const gridY = floor(random(raster.aantalRijen));
     this.x = gridX * raster.celGrootte;
     this.y = gridY * raster.celGrootte;
+    this.active = true;
+    this.radius = 30;
+    this.color = color(255, 255, 0);
+    this.collected = false;
+    this.name = "Power Up"; // Name of the power-up
   }
 
   collect(jos) {
@@ -142,7 +142,9 @@ class PowerUp {
     if (distance < this.radius && !this.collected) {
       this.collected = true;
       this.applyEffect(jos);
-      powerUpMessage = "Power Up Collected!";
+      powerUpMessage = `${this.name} Collected!`; // Display the power-up name in the message
+      // Start the message timer
+      messageTimer = messageDuration;
     }
   }
 
@@ -163,29 +165,20 @@ class PowerUp {
   }
 }
 
-class InvincibilityPowerUp {
-  constructor() {
-    this.spawnRandomPosition();
-    this.active = true;
-    this.radius = 30;
-    this.color = color(255, 0, 0);
-    this.collected = false;
-  }
+class InvincibilityPowerUp extends PowerUp {
+  constructor(existingPowerUp) {
+    super();
+    do {
+      const gridX = floor(random(raster.aantalKolommen));
+      const gridY = floor(random(raster.aantalRijen));
+      this.x = gridX * raster.celGrootte;
+      this.y = gridY * raster.celGrootte;
+    } while (
+      dist(this.x, this.y, existingPowerUp.x, existingPowerUp.y) < this.radius
+    );
 
-  spawnRandomPosition() {
-    const gridX = floor(random(raster.aantalKolommen));
-    const gridY = floor(random(raster.aantalRijen));
-    this.x = gridX * raster.celGrootte;
-    this.y = gridY * raster.celGrootte;
-  }
-
-  collect(jos) {
-    const distance = dist(this.x, this.y, jos.x, jos.y);
-    if (distance < this.radius && !this.collected) {
-      this.collected = true;
-      this.applyEffect(jos);
-      powerUpMessage = "Invincibility Power Up Collected!";
-    }
+    this.color = color(255, 0, 0); // Red color for invincibility power-up
+    this.name = "Invincibility Power Up"; // Name of the invincibility power-up
   }
 
   applyEffect(jos) {
@@ -195,34 +188,6 @@ class InvincibilityPowerUp {
       this.active = false;
     }, 5000); // 5000 milliseconds (5 seconds) of invincibility
   }
-
-  draw() {
-    if (!this.collected) {
-      noStroke();
-      fill(this.color);
-      ellipse(
-        this.x + raster.celGrootte / 2,
-        this.y + raster.celGrootte / 2,
-        this.radius * 2
-      );
-    }
-  }
-}
-
-function spawnPowerUps() {
-  powerUp = new PowerUp(); // Create the PowerUp first
-  invincibilityPowerUp = new InvincibilityPowerUp(); // Then create the InvincibilityPowerUp
-  lastPowerUpTime = millis();
-}
-
-
-function spawnEnemy() {
-  const x = floor(random(raster.aantalKolommen)) * raster.celGrootte;
-  const y = floor(random(raster.aantalRijen)) * raster.celGrootte;
-  const enemy = new Vijand(x, y);
-  enemy.stapGrootte = 1 * eve.stapGrootte;
-  enemy.sprite = loadImage("images/sprites/Alice100px/Alice.png");
-  enemies.push(enemy);
 }
 
 function preload() {
@@ -232,7 +197,7 @@ function preload() {
 function setup() {
   canvas = createCanvas(900, 600);
   canvas.parent();
-  frameRate(5); // Decreased frame rate by half
+  frameRate(5); // Decreased frame rate to 5
   textFont("Verdana");
   textSize(90);
 
@@ -246,48 +211,43 @@ function setup() {
     eve.animatie.push(frameEve);
   }
 
-  spawnPowerUps();
-  // Create two initial enemies
-  for (let i = 0; i < 2; i++) {
-    spawnEnemy();
-  }
+  alice = new Vijand(700, 200);
+  alice.stapGrootte = 1 * eve.stapGrootte;
+  alice.sprite = loadImage("images/sprites/Alice100px/Alice.png");
+
+  bob = new Vijand(600, 400);
+  bob.stapGrootte = 1 * eve.stapGrootte;
+  bob.sprite = loadImage("images/sprites/Bob100px/Bob.png");
+
+  // Create the initial power-up
+  powerUp = new PowerUp();
+
+  // Create the invincibility power-up while avoiding collisions with the initial power-up
+  invincibilityPowerUp = new InvincibilityPowerUp(powerUp);
 }
 
 function draw() {
   background(brug);
   raster.teken();
   eve.beweeg();
+  alice.beweeg();
+  bob.beweeg();
   eve.toon();
+  alice.toon();
+  bob.toon();
+  powerUp.draw();
+  invincibilityPowerUp.draw();
 
-  // Check if power-ups should be respawned
-  if (millis() - lastPowerUpTime > powerUpInterval) {
-    spawnPowerUps();
-  }
-
-  // Check for collision with power-ups
-  powerUp.collect(eve);
-  invincibilityPowerUp.collect(eve);
-
-  // Display power-up message
-  fill(255);
-  textSize(30);
-  textAlign(CENTER, CENTER);
-  text(powerUpMessage, width / 2, height - 50);
-  textSize(90);
-
-  // Move and display enemies
-  for (let i = 0; i < enemies.length; i++) {
-    const enemy = enemies[i];
-    enemy.beweeg();
-    enemy.toon();
-  }
-
-  // Check for collisions with enemies
-  for (let i = 0; i < enemies.length; i++) {
-    const enemy = enemies[i];
-    if (eve.wordtGeraakt(enemy)) {
-      noLoop();
+  // Decrement messageTimer and hide the message when it reaches 0
+  if (messageTimer > 0) {
+    messageTimer -= deltaTime;
+    if (messageTimer <= 0) {
+      powerUpMessage = ""; // Clear the message
     }
+  }
+
+  if (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob)) {
+    noLoop();
   }
 
   if (eve.gehaald) {
