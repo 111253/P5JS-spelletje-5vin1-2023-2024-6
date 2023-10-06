@@ -13,7 +13,7 @@ class Raster {
   constructor(r, k) {
     this.aantalRijen = r;
     this.aantalKolommen = k;
-    this.celGrootte = null;
+    this.celGrootte = null; //test
   }
 
   berekenCelGrootte() {
