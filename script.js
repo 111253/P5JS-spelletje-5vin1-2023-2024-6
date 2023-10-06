@@ -8,7 +8,6 @@ let invincibilityPowerUp;
 let powerUpMessage = "";
 let lastPowerUpTime = 0;
 let powerUpInterval = 10000; // 10 seconds
-let enemySpawnInterval = 3000; // 3 seconds
 
 class Raster {
   constructor(r, k) {
@@ -220,15 +219,6 @@ function spawnPowerUps() {
   lastPowerUpTime = millis();
 }
 
-function spawnEnemy() {
-  const enemyX = random(0, canvas.width - raster.celGrootte);
-  const enemyY = random(0, canvas.height - raster.celGrootte);
-  const enemy = new Vijand(enemyX, enemyY);
-  enemy.stapGrootte = 1 * eve.stapGrootte;
-  enemy.sprite = loadImage("images/sprites/Alice100px/Alice.png"); // Change to appropriate enemy sprite
-  enemies.push(enemy);
-}
-
 function preload() {
   brug = loadImage("images/backgrounds/dame_op_brug_1800.jpg");
 }
@@ -251,6 +241,10 @@ function setup() {
   }
 
   spawnPowerUps();
+  // Create two initial enemies
+  for (let i = 0; i < 2; i++) {
+    spawnEnemy();
+  }
 }
 
 function draw() {
@@ -274,11 +268,6 @@ function draw() {
   textAlign(CENTER, CENTER);
   text(powerUpMessage, width / 2, height - 50);
   textSize(90);
-
-  // Spawn enemies at a regular interval
-  if (millis() % enemySpawnInterval < 50) {
-    spawnEnemy();
-  }
 
   // Move and display enemies
   for (let i = 0; i < enemies.length; i++) {
