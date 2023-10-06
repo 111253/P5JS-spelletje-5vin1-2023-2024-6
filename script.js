@@ -12,7 +12,7 @@ let powerUpInterval = 10000; // 10 seconds
 class Raster {
   constructor(r, k) {
     this.aantalRijen = r;
-    this.aantalKolommen = k; //test 4 
+    this.aantalKolommen = k;
     this.celGrootte = null;
   }
 
@@ -164,23 +164,19 @@ class PowerUp {
 }
 
 class InvincibilityPowerUp {
-  constructor(existingPowerUp) {
-    this.spawnRandomPositionAvoiding(existingPowerUp);
+  constructor() {
+    this.spawnRandomPosition();
     this.active = true;
     this.radius = 30;
     this.color = color(255, 0, 0);
     this.collected = false;
   }
 
-  spawnRandomPositionAvoiding(existingPowerUp) {
-    do {
-      const gridX = floor(random(raster.aantalKolommen));
-      const gridY = floor(random(raster.aantalRijen));
-      this.x = gridX * raster.celGrootte;
-      this.y = gridY * raster.celGrootte;
-    } while (
-      dist(this.x, this.y, existingPowerUp.x, existingPowerUp.y) < this.radius
-    );
+  spawnRandomPosition() {
+    const gridX = floor(random(raster.aantalKolommen));
+    const gridY = floor(random(raster.aantalRijen));
+    this.x = gridX * raster.celGrootte;
+    this.y = gridY * raster.celGrootte;
   }
 
   collect(jos) {
@@ -214,10 +210,11 @@ class InvincibilityPowerUp {
 }
 
 function spawnPowerUps() {
-  powerUp = new PowerUp();
-  invincibilityPowerUp = new InvincibilityPowerUp(powerUp);
+  powerUp = new PowerUp(); // Create the PowerUp first
+  invincibilityPowerUp = new InvincibilityPowerUp(); // Then create the InvincibilityPowerUp
   lastPowerUpTime = millis();
 }
+
 
 function spawnEnemy() {
   const x = floor(random(raster.aantalKolommen)) * raster.celGrootte;
