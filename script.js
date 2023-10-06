@@ -13,7 +13,7 @@ class Raster {
   constructor(r, k) {
     this.aantalRijen = r;
     this.aantalKolommen = k;
-    this.celGrootte = null; //test
+    this.celGrootte = null;
   }
 
   berekenCelGrootte() {
@@ -217,6 +217,15 @@ function spawnPowerUps() {
   powerUp = new PowerUp();
   invincibilityPowerUp = new InvincibilityPowerUp(powerUp);
   lastPowerUpTime = millis();
+}
+
+function spawnEnemy() {
+  const x = floor(random(raster.aantalKolommen)) * raster.celGrootte;
+  const y = floor(random(raster.aantalRijen)) * raster.celGrootte;
+  const enemy = new Vijand(x, y);
+  enemy.stapGrootte = 1 * eve.stapGrootte;
+  enemy.sprite = loadImage("images/sprites/Enemy100px/Enemy.png");
+  enemies.push(enemy);
 }
 
 function preload() {
