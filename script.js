@@ -224,7 +224,7 @@ function spawnEnemy() {
   const y = floor(random(raster.aantalRijen)) * raster.celGrootte;
   const enemy = new Vijand(x, y);
   enemy.stapGrootte = 1 * eve.stapGrootte;
-  enemy.sprite = loadImage("images/sprites/Enemy100px/Enemy.png");
+  enemy.sprite = loadImage("images/sprites/Alice100px/Alice.png");
   enemies.push(enemy);
 }
 
