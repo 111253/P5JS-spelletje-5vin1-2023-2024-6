@@ -12,7 +12,7 @@ let powerUpInterval = 10000; // 10 seconds
 class Raster {
   constructor(r, k) {
     this.aantalRijen = r;
-    this.aantalKolommen = k;
+    this.aantalKolommen = k; //test 4 
     this.celGrootte = null;
   }
 
